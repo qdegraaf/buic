@@ -1,24 +1,54 @@
 use std::path::PathBuf;
-use clap::{Parser, ValueEnum};
+use clap::{Parser, Subcommand, ValueEnum};
 
 #[derive(Parser, Debug)]
 #[structopt(name = "buic", about = "the compact Rust buienradar JSON API CLI")]
 pub struct Buic {
-    /// Longitude
-    #[clap(long, required = true)]
-    pub longitude: f64,
-
-    /// Latitude>
-    #[clap(long, required = true)]
-    pub latitude: f64,
+    /// Type of Buic command to run
+    #[clap(subcommand)]
+    pub cmd: BuicCommand,
 
     /// Output file, stdout if not present
     #[clap(short, long, requires = "filetype")]
-    output: Option<PathBuf>,
+    pub output: Option<PathBuf>,
 
     /// Output filetype
     #[clap(short, long, value_enum, ignore_case = true)]
     filetype: Option<FileType>,
+}
+
+#[derive(Debug, Subcommand)]
+pub enum BuicCommand {
+    /// Get rain data 2h into the future for any lat/lon pair in NL/BE. Defaults to Utrecht
+    Rain {
+        /// Latitude>
+        #[clap(long, default_value = "52.0907")]
+        latitude: f64,
+
+        /// Longitude
+        #[clap(long, default_value = "5.1214")]
+        longitude: f64,
+    },
+    /// Get more detailed weather info from the buienradar.nl JSON API
+    Weather {
+        /// Type of weather command to run
+        #[clap(subcommand)]
+        cmd: WeatherCommand,
+    }
+
+}
+
+#[derive(Debug, Subcommand)]
+pub enum WeatherCommand {
+    Actuals {
+        #[clap(short, long, required = true)]
+        station: String
+    },
+    Forecast {
+        #[clap(short, long, required = true)]
+        n_days: u8
+    }
+
 }
 
 
