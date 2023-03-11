@@ -6,11 +6,11 @@ use clap::{Parser, ValueEnum};
 pub struct Buic {
     /// Longitude
     #[clap(long, required = true)]
-    longitude: f64,
+    pub longitude: f64,
 
     /// Latitude>
     #[clap(long, required = true)]
-    latitude: f64,
+    pub latitude: f64,
 
     /// Output file, stdout if not present
     #[clap(short, long, requires = "filetype")]
