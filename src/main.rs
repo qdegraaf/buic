@@ -2,13 +2,13 @@ use std::fs::File;
 use std::io::Write;
 
 use clap::Parser;
-
+use anyhow;
 use buic::args::{Buic, BuicCommand, WeatherCommand};
 use buic::buienradar::{get_actuals, get_forecast, get_rain};
 
 
 #[tokio::main]
-async fn main() -> Result<(), reqwest::Error> {
+async fn main() -> Result<(), anyhow::Error> {
     let args = Buic::parse();
 
     match args.cmd {
@@ -24,20 +24,29 @@ async fn main() -> Result<(), reqwest::Error> {
         },
         BuicCommand::Weather { cmd } => match cmd {
             WeatherCommand::Actuals { station } => {
-                let response = get_actuals(station).await;
+                let response = get_actuals(station).await?;
                 match args.output {
                     Some(path) => {
                         let mut file = File::create(path).expect("Could not create file for given path");
-                        file.write_all(response.as_ref()).expect("Could not write response to file");
+                        file.write_all(response.to_string().as_ref()).expect("Could not write response to file");
                     }
                     None => println!("{}", response)
                 };
+
             },
             WeatherCommand::Forecast { n_days } => {
                 let response = get_forecast(n_days).await;
-                for forecast in response {
-                    println!("{}", forecast)
-                }
+                match args.output {
+                    Some(path) => {
+                        let mut file = File::create(path).expect("Could not create file for given path");
+                        for forecast in response {
+                            file.write_all(forecast.to_string().as_ref()).expect("Could not write response to file");
+                        }
+                    }
+                    None => for forecast in response {
+                        println!("{}", forecast)
+                    }
+                };
             }
         }
     };

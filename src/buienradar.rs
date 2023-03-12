@@ -1,5 +1,5 @@
 use std::fmt;
-
+use anyhow::anyhow;
 use serde::Deserialize;
 
 pub async fn get_rain(lat: f64, lon: f64) -> String {
@@ -11,7 +11,7 @@ pub async fn get_rain(lat: f64, lon: f64) -> String {
         .expect("Failed to get payload from raintext API response")
 }
 
-pub async fn get_actuals(station: String) -> String {
+pub async fn get_actuals(station: String) -> Result<StationMeasurement, anyhow::Error> {
     let response = reqwest::get("https://data.buienradar.nl/2.0/feed/json")
         .await
         .expect("Failed to get a response from JSON API")
@@ -24,12 +24,10 @@ pub async fn get_actuals(station: String) -> String {
 
     for station_measurement in json.actual.station_measurements {
         if station_measurement.station_name.to_lowercase().contains(&station) {
-            let result = station_measurement;
-            println!("{:?}", result);
-            break;
+            return Ok(station_measurement)
         }
     }
-    String::from("OKASDASD")
+    Err(anyhow!("No measurement found for station: {}", station))
 }
 
 #[derive(Deserialize, Debug)]
@@ -53,11 +51,72 @@ struct Actual {
 }
 
 #[derive(Deserialize, Debug)]
-struct StationMeasurement {
+pub struct StationMeasurement {
     #[serde(alias = "$id")]
     id: String,
+    #[serde(alias = "stationid")]
+    station_id: u32,
     #[serde(alias = "stationname")]
     station_name: String,
+    lat: f32,
+    lon: f32,
+    regio: String,
+    timestamp: String,
+    #[serde(alias = "weatherdescription")]
+    weather_description: String,
+    #[serde(alias = "iconurl")]
+    icon_url: String,
+    #[serde(alias = "graphUrl")]
+    graph_url: String,
+    // #[serde(alias = "winddirection")]
+    // wind_direction: String,
+    // temperature: f32,
+    // #[serde(alias = "groundtemperature")]
+    // ground_temperature: f32,
+    // #[serde(alias = "feeltemperature")]
+    // feel_temperature: f32,
+    // #[serde(alias = "windgusts")]
+    // wind_gusts: f32,
+    // #[serde(alias = "windspeed")]
+    // wind_speed: f32,
+    // #[serde(alias = "windspeedBft")]
+    // wind_speed_bft: f32,
+    // humidity: f32,
+    // #[serde(alias = "precipitation")]
+    // precipitation: f32,
+    // #[serde(alias = "sunpower")]
+    // sun_power: f32,
+    // #[serde(alias = "rainFallLast24Hour")]
+    // rainfall_last_24_hour: f32,
+    // #[serde(alias = "rainFallLastHour")]
+    // rainfall_last_hour: f32,
+    // #[serde(alias = "winddirectiondegrees")]
+    // wind_direction_degrees: f32,
+}
+
+
+impl fmt::Display for StationMeasurement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f,
+           "Actual:
+           ID: {}
+           Station ID: {}
+           Station Name: {}
+           Latitude: {}
+           Longitude: {}
+           Regio: {}
+           Timestamp: {}
+           Weather Description: {}
+           Graph URL: {}",
+               self.id, self.station_id, self.station_name, self.lat, self.lon,
+               self.regio, self.timestamp, self.weather_description,
+               self.graph_url,
+               // self.feel_temperature,
+               // self.humidity,
+               // self.precipitation, self.sun_power, self.rainfall_last_24_hour,
+               // self.rainfall_last_hour, self.wind_direction_degrees
+        )
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -73,29 +132,58 @@ pub struct DayForecast {
     #[serde(alias = "$id")]
     id: String,
     day: String,
-    mintemperature: String,
-    maxtemperature: String,
-    mintemperatureMax: i32,
-    mintemperatureMin: i32,
-    maxtemperatureMax: i32,
-    maxtemperatureMin: i32,
-    rainChance: u16,
-    sunChance: u16,
-    windDirection: String,
-    wind: u16,
-    mmRainMin: f32,
-    mmRainMax: f32,
-    weatherdescription: String,
-    iconurl: String,
+    #[serde(alias = "mintemperature")]
+    min_temperature: String,
+    #[serde(alias = "maxtemperature")]
+    max_temperature: String,
+    #[serde(alias = "mintemperatureMax")]
+    min_temperature_max: i32,
+    #[serde(alias = "mintemperatureMin")]
+    min_temperature_min: i32,
+    #[serde(alias = "maxtemperatureMax")]
+    max_temperature_max: i32,
+    #[serde(alias = "maxtemperatureMin")]
+    max_temperature_min: i32,
+    #[serde(alias = "rainChance")]
+    rain_chance: f32,
+    #[serde(alias = "sunChance")]
+    sun_chance: f32,
+    #[serde(alias = "windDirection")]
+    wind_direction: String,
+    wind: f32,
+    #[serde(alias = "mmRainMin")]
+    mm_rain_min: f32,
+    #[serde(alias = "mmRainMax")]
+    mm_rain_max: f32,
+    #[serde(alias = "weatherdescription")]
+    weather_description: String,
+    #[serde(alias = "iconurl")]
+    icon_url: String,
 }
 
 impl fmt::Display for DayForecast {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Forecast:\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n",
-               self.id, self.day, self.mintemperature, self.maxtemperature, self.mintemperatureMax,
-               self.mintemperatureMin, self.maxtemperatureMax, self.maxtemperatureMin,
-               self.rainChance, self.sunChance, self.windDirection, self.wind, self.mmRainMin,
-               self.mmRainMax, self.weatherdescription, self.iconurl)
+        write!(f,
+               "Forecast:
+           ID: {}
+           Day: {}
+           Min Temperature: {}
+           Max Temperature: {}
+           Min Temperature Max: {}
+           Min Temperature Min: {}
+           Max Temperature Max: {}
+           Max Temperature Min: {}
+           Rain Chance: {}
+           Sun Chance: {}
+           Wind Direction: {}
+           Wind: {}
+           mm Rain Min: {}
+           mm Rain Max: {}
+           Weather Description: {}",
+               self.id, self.day, self.min_temperature, self.max_temperature, self.min_temperature_max,
+               self.min_temperature_min, self.max_temperature_max, self.max_temperature_min,
+               self.rain_chance, self.sun_chance, self.wind_direction, self.wind, self.mm_rain_min,
+               self.mm_rain_max, self.weather_description)
     }
 }
 
