@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+
 use clap::{Parser, Subcommand, ValueEnum};
 
 #[derive(Parser, Debug)]
@@ -34,8 +35,7 @@ pub enum BuicCommand {
         /// Type of weather command to run
         #[clap(subcommand)]
         cmd: WeatherCommand,
-    }
-
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -47,13 +47,12 @@ pub enum WeatherCommand {
     Forecast {
         #[clap(short, long, required = true)]
         n_days: u8
-    }
-
+    },
 }
 
 
 #[derive(ValueEnum, Debug, Clone)]
 enum FileType {
     CSV,
-    JSON
+    JSON,
 }
