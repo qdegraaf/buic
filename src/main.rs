@@ -35,7 +35,7 @@ async fn main() -> Result<(), reqwest::Error> {
             },
             WeatherCommand::Forecast { n_days } => {
                 let response = get_forecast(n_days).await;
-                println!("{:?}", response);
+                println!("{}", "some");
             }
         }
     };
