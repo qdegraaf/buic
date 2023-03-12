@@ -1,5 +1,6 @@
-use serde::Deserialize;
+use std::fmt;
 
+use serde::Deserialize;
 
 pub async fn get_rain(lat: f64, lon: f64) -> String {
     reqwest::get(format!("https://gpsgadget.buienradar.nl/data/raintext?lat={lat}&lon={lon}"))
@@ -86,6 +87,16 @@ pub struct DayForecast {
     mmRainMax: f32,
     weatherdescription: String,
     iconurl: String,
+}
+
+impl fmt::Display for DayForecast {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Forecast:\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n{}\n",
+               self.id, self.day, self.mintemperature, self.maxtemperature, self.mintemperatureMax,
+               self.mintemperatureMin, self.maxtemperatureMax, self.maxtemperatureMin,
+               self.rainChance, self.sunChance, self.windDirection, self.wind, self.mmRainMin,
+               self.mmRainMax, self.weatherdescription, self.iconurl)
+    }
 }
 
 pub async fn get_forecast(n_days: u8) -> Vec<DayForecast> {
