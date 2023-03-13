@@ -1,3 +1,3 @@
 # buic
 
-Buienradar CLI 
+Buienradar CLI tool 
