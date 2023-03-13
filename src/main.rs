@@ -12,56 +12,49 @@ async fn main() -> Result<(), anyhow::Error> {
     let args = Buic::parse();
 
     match args.cmd {
-        BuicCommand::Rain { latitude, longitude } => {
+        BuicCommand::Rain {
+            latitude,
+            longitude,
+        } => {
             let response = get_rain(latitude, longitude).await;
-            match args.output {
-                Some(path) => {
-                    let mut file = File::create(path).expect("Could not create file for given path");
-                    file.write_all(response.as_ref()).expect("Could not write response to file");
-                }
-                None => println!("{}", response)
-            };
-        },
-        BuicCommand::Weather { cmd } => match cmd {
+            write_output(&args, response);
+        }
+        BuicCommand::Weather { ref cmd } => match cmd {
             WeatherCommand::Actuals { station } => {
-                let response = get_actuals(station).await?;
-                match args.output {
-                    Some(path) => {
-                        let mut file = File::create(path).expect("Could not create file for given path");
-                        file.write_all(response.to_string().as_ref()).expect("Could not write response to file");
-                    }
-                    None => println!("{}", response)
-                };
-
-            },
+                let response = get_actuals(station.to_string()).await?;
+                write_output(&args, response.to_string());
+            }
             WeatherCommand::Forecast { n_days } => {
-                let response = get_forecast(n_days).await;
+                let response = get_forecast(*n_days).await;
                 match args.output {
                     Some(path) => {
-                        let mut file = File::create(path).expect("Could not create file for given path");
+                        let mut file =
+                            File::create(path).expect("Could not create file for given path");
                         for forecast in response {
-                            file.write_all(forecast.to_string().as_ref()).expect("Could not write response to file");
+                            file.write_all(forecast.to_string().as_ref())
+                                .expect("Could not write response to file");
                         }
                     }
-                    None => for forecast in response {
-                        println!("{}", forecast)
+                    None => {
+                        for forecast in response {
+                            println!("{}", forecast)
+                        }
                     }
                 };
             }
-        }
+        },
     };
 
     Ok(())
 }
 
-// // TODO: Add better error handling
-// // TODO: Add multiple file type handling
-// fn write_output(args: &Buic, response: String) {
-//     match args.output {
-//         Some(path) => {
-//             let mut file = File::create(path).expect("Could not create file for given path");
-//             file.write_all(response.as_ref()).expect("Could not write response to file");
-//         }
-//         None => println!("{}", response)
-//     };
-// }
+fn write_output(args: &Buic, response: String) {
+    match &args.output {
+        Some(path) => {
+            let mut file = File::create(path).expect("Could not create file for given path");
+            file.write_all(response.as_ref())
+                .expect("Could not write response to file");
+        }
+        None => println!("{}", response),
+    };
+}
