@@ -1,4 +1,4 @@
-[![build](https://github.com/qdegraaf/buic/.github/workflows/ci.yml/badge.svg)](https://github.com/qdegraaf/buic/.github/workflows/ci.yml)
+[![CI](https://github.com/qdegraaf/buic/actions/workflows/ci.yml/badge.svg)](https://github.com/qdegraaf/buic/actions/workflows/ci.yml)
 
 # Overview
 
