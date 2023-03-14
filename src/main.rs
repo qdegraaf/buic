@@ -1,11 +1,10 @@
 use std::fs::File;
 use std::io::Write;
 
-use clap::Parser;
 use anyhow;
 use buic::args::{Buic, BuicCommand, WeatherCommand};
 use buic::buienradar::{get_actuals, get_forecast, get_rain};
-
+use clap::Parser;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {

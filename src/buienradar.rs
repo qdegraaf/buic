@@ -1,14 +1,16 @@
-use std::fmt;
 use anyhow::anyhow;
 use serde::Deserialize;
+use std::fmt;
 
 pub async fn get_rain(lat: f64, lon: f64) -> String {
-    reqwest::get(format!("https://gpsgadget.buienradar.nl/data/raintext?lat={lat}&lon={lon}"))
-        .await
-        .expect("Failed to get a response from raintext API")
-        .text()
-        .await
-        .expect("Failed to get payload from raintext API response")
+    reqwest::get(format!(
+        "https://gpsgadget.buienradar.nl/data/raintext?lat={lat}&lon={lon}"
+    ))
+    .await
+    .expect("Failed to get a response from raintext API")
+    .text()
+    .await
+    .expect("Failed to get payload from raintext API response")
 }
 
 pub async fn get_actuals(station: String) -> Result<StationMeasurement, anyhow::Error> {
@@ -19,12 +21,16 @@ pub async fn get_actuals(station: String) -> Result<StationMeasurement, anyhow::
         .await
         .expect("Failed to get payload from JSON API response");
 
-    let json: JSONResult = serde_json::from_str(&response)
-        .expect("Could not read JSON into JSONResult value");
+    let json: JSONResult =
+        serde_json::from_str(&response).expect("Could not read JSON into JSONResult value");
 
     for station_measurement in json.actual.station_measurements {
-        if station_measurement.station_name.to_lowercase().contains(&station) {
-            return Ok(station_measurement)
+        if station_measurement
+            .station_name
+            .to_lowercase()
+            .contains(&station)
+        {
+            return Ok(station_measurement);
         }
     }
     Err(anyhow!("No measurement found for station: {}", station))
@@ -94,11 +100,11 @@ pub struct StationMeasurement {
     // wind_direction_degrees: f32,
 }
 
-
 impl fmt::Display for StationMeasurement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,
-           "Actual:
+        write!(
+            f,
+            "Actual:
            ID: {}
            Station ID: {}
            Station Name: {}
@@ -108,13 +114,19 @@ impl fmt::Display for StationMeasurement {
            Timestamp: {}
            Weather Description: {}
            Graph URL: {}",
-               self.id, self.station_id, self.station_name, self.lat, self.lon,
-               self.regio, self.timestamp, self.weather_description,
-               self.graph_url,
-               // self.feel_temperature,
-               // self.humidity,
-               // self.precipitation, self.sun_power, self.rainfall_last_24_hour,
-               // self.rainfall_last_hour, self.wind_direction_degrees
+            self.id,
+            self.station_id,
+            self.station_name,
+            self.lat,
+            self.lon,
+            self.regio,
+            self.timestamp,
+            self.weather_description,
+            self.graph_url,
+            // self.feel_temperature,
+            // self.humidity,
+            // self.precipitation, self.sun_power, self.rainfall_last_24_hour,
+            // self.rainfall_last_hour, self.wind_direction_degrees
         )
     }
 }
@@ -163,8 +175,9 @@ pub struct DayForecast {
 
 impl fmt::Display for DayForecast {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,
-               "Forecast:
+        write!(
+            f,
+            "Forecast:
            ID: {}
            Day: {}
            Min Temperature: {}
@@ -180,10 +193,22 @@ impl fmt::Display for DayForecast {
            mm Rain Min: {}
            mm Rain Max: {}
            Weather Description: {}",
-               self.id, self.day, self.min_temperature, self.max_temperature, self.min_temperature_max,
-               self.min_temperature_min, self.max_temperature_max, self.max_temperature_min,
-               self.rain_chance, self.sun_chance, self.wind_direction, self.wind, self.mm_rain_min,
-               self.mm_rain_max, self.weather_description)
+            self.id,
+            self.day,
+            self.min_temperature,
+            self.max_temperature,
+            self.min_temperature_max,
+            self.min_temperature_min,
+            self.max_temperature_max,
+            self.max_temperature_min,
+            self.rain_chance,
+            self.sun_chance,
+            self.wind_direction,
+            self.wind,
+            self.mm_rain_min,
+            self.mm_rain_max,
+            self.weather_description
+        )
     }
 }
 
@@ -195,9 +220,13 @@ pub async fn get_forecast(n_days: u8) -> Vec<DayForecast> {
         .await
         .expect("Failed to get payload from JSON API response");
 
-    let json: JSONResult = serde_json::from_str(&response)
-        .expect("Could not read JSON into JSONResult value");
+    let json: JSONResult =
+        serde_json::from_str(&response).expect("Could not read JSON into JSONResult value");
 
     let n_days_us = usize::try_from(n_days).unwrap();
-    json.forecast.five_day_forecast.into_iter().take(n_days_us).collect()
+    json.forecast
+        .five_day_forecast
+        .into_iter()
+        .take(n_days_us)
+        .collect()
 }

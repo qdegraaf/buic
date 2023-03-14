@@ -42,14 +42,13 @@ pub enum BuicCommand {
 pub enum WeatherCommand {
     Actuals {
         #[clap(short, long, required = true)]
-        station: String
+        station: String,
     },
     Forecast {
         #[clap(short, long, required = true)]
-        n_days: u8
+        n_days: u8,
     },
 }
-
 
 #[derive(ValueEnum, Debug, Clone)]
 enum FileType {
