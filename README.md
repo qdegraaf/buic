@@ -1,5 +1,5 @@
 [![CI](https://github.com/qdegraaf/buic/actions/workflows/ci.yml/badge.svg)](https://github.com/qdegraaf/buic/actions/workflows/ci.yml)
-
+[![Release](https://github.com/qdegraaf/buic/actions/workflows/release.yml/badge.svg)](https://github.com/qdegraaf/buic/actions/workflows/release.yml)
 # Overview
 
 `buic` is a command line tool which connects to the APIs of www.buienradar.nl to give you weather information without
@@ -7,7 +7,16 @@ having to leave your terminal.
 
 # Installing
 
-// TODO
+### Build from source
+Download the source code, either by cloning the repo or downloading a zip with the code from 
+[Releases](https://github.com/qdegraaf/buic/releases/). Then run 
+```bash
+cargo build
+```
+
+### Download binary
+Find your OS under [Releases](https://github.com/qdegraaf/buic/releases/) and download the version you want. Unpack and
+move the binary into your $PATH. 
 
 
 # Usage
