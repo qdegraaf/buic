@@ -1,6 +1,7 @@
 use anyhow::anyhow;
 use serde::Deserialize;
 use std::fmt;
+use std::fmt::Display;
 
 pub async fn get_rain(lat: f64, lon: f64) -> String {
     reqwest::get(format!(
@@ -74,33 +75,33 @@ pub struct StationMeasurement {
     icon_url: String,
     #[serde(alias = "graphUrl")]
     graph_url: String,
-    // #[serde(alias = "winddirection")]
-    // wind_direction: String,
-    // temperature: f32,
-    // #[serde(alias = "groundtemperature")]
-    // ground_temperature: f32,
-    // #[serde(alias = "feeltemperature")]
-    // feel_temperature: f32,
-    // #[serde(alias = "windgusts")]
-    // wind_gusts: f32,
-    // #[serde(alias = "windspeed")]
-    // wind_speed: f32,
-    // #[serde(alias = "windspeedBft")]
-    // wind_speed_bft: f32,
-    // humidity: f32,
-    // #[serde(alias = "precipitation")]
-    // precipitation: f32,
-    // #[serde(alias = "sunpower")]
-    // sun_power: f32,
-    // #[serde(alias = "rainFallLast24Hour")]
-    // rainfall_last_24_hour: f32,
-    // #[serde(alias = "rainFallLastHour")]
-    // rainfall_last_hour: f32,
-    // #[serde(alias = "winddirectiondegrees")]
-    // wind_direction_degrees: f32,
+    #[serde(alias = "winddirection")]
+    wind_direction: Option<String>,
+    temperature: Option<f32>,
+    #[serde(alias = "groundtemperature")]
+    ground_temperature: Option<f32>,
+    #[serde(alias = "feeltemperature")]
+    feel_temperature: Option<f32>,
+    #[serde(alias = "windgusts")]
+    wind_gusts: Option<f32>,
+    #[serde(alias = "windspeed")]
+    wind_speed: Option<f32>,
+    #[serde(alias = "windspeedBft")]
+    wind_speed_bft: Option<f32>,
+    humidity: Option<f32>,
+    #[serde(alias = "precipitation")]
+    precipitation: Option<f32>,
+    #[serde(alias = "sunpower")]
+    sun_power: Option<f32>,
+    #[serde(alias = "rainFallLast24Hour")]
+    rainfall_last_24_hour: Option<f32>,
+    #[serde(alias = "rainFallLastHour")]
+    rainfall_last_hour: Option<f32>,
+    #[serde(alias = "winddirectiondegrees")]
+    wind_direction_degrees: Option<f32>,
 }
 
-impl fmt::Display for StationMeasurement {
+impl Display for StationMeasurement {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
@@ -113,7 +114,7 @@ impl fmt::Display for StationMeasurement {
            Regio: {}
            Timestamp: {}
            Weather Description: {}
-           Graph URL: {}",
+           Graph URL: {}\n",
             self.id,
             self.station_id,
             self.station_name,
@@ -123,11 +124,47 @@ impl fmt::Display for StationMeasurement {
             self.timestamp,
             self.weather_description,
             self.graph_url,
-            // self.feel_temperature,
-            // self.humidity,
-            // self.precipitation, self.sun_power, self.rainfall_last_24_hour,
-            // self.rainfall_last_hour, self.wind_direction_degrees
+        )?;
+        write_optional_field::<String>(String::from("Wind Direction"), &self.wind_direction, f)?;
+        write_optional_field::<f32>(String::from("Temperature"), &self.temperature, f)?;
+        write_optional_field::<f32>(
+            String::from("Ground Temperature"),
+            &self.ground_temperature,
+            f,
+        )?;
+        write_optional_field::<f32>(String::from("Feel Temperature"), &self.feel_temperature, f)?;
+        write_optional_field::<f32>(String::from("Wind Gusts"), &self.wind_gusts, f)?;
+        write_optional_field::<f32>(String::from("Wind Speed"), &self.wind_speed, f)?;
+        write_optional_field::<f32>(String::from("Wind Speed Bft"), &self.wind_speed_bft, f)?;
+        write_optional_field::<f32>(String::from("Humidity"), &self.humidity, f)?;
+        write_optional_field::<f32>(String::from("Precipitation"), &self.precipitation, f)?;
+        write_optional_field::<f32>(String::from("Sunpower"), &self.sun_power, f)?;
+        write_optional_field::<f32>(
+            String::from("Rainfall Last 24 Hours"),
+            &self.rainfall_last_24_hour,
+            f,
+        )?;
+        write_optional_field::<f32>(
+            String::from("Rainfall Last Hour"),
+            &self.rainfall_last_hour,
+            f,
+        )?;
+        write_optional_field::<f32>(
+            String::from("Wind Direction Degrees"),
+            &self.wind_direction_degrees,
+            f,
         )
+    }
+}
+
+fn write_optional_field<T: Display>(
+    key: String,
+    val: &Option<T>,
+    f: &mut fmt::Formatter,
+) -> fmt::Result {
+    match val {
+        Some(value) => writeln!(f, "           {}: {}", key, value),
+        None => Ok(()),
     }
 }
 
@@ -173,7 +210,7 @@ pub struct DayForecast {
     icon_url: String,
 }
 
-impl fmt::Display for DayForecast {
+impl Display for DayForecast {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,

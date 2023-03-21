@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::Write;
 
-use anyhow;
 use buic::args::{Buic, BuicCommand, WeatherCommand};
 use buic::buienradar::{get_actuals, get_forecast, get_rain};
 use clap::Parser;
