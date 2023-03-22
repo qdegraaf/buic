@@ -42,6 +42,8 @@ to 5 days into the future
 
 ### rain
 ```
+Get rain data 2h into the future for any lat/lon pair in NL/BE. Defaults to Utrecht
+
 buic rain [OPTIONS]
 
 Options:
@@ -55,10 +57,12 @@ buic rain --latitude 51.1 --longitude 4.9231
 ```
 ### weather: actuals
 ```
-buic weather actuals --station <STATION>
+Get actual weather data from weather stations around the Benelux
+
+Usage: buic weather actuals --station <STATION>
 
 Options:
-  -s, --station <STATION>  
+  -s, --station <STATION>  Name of the weather station for which you want to get actual weather data
   -h, --help               Print help
 ```
 e.g. 
@@ -68,10 +72,12 @@ buic weather actuals -s Arnhem
 
 ### weather: forecast
 ```
-buic weather forecast --n-days <N_DAYS>
+Get the country wide forecast for 1-5 days into the future
+
+Usage: buic weather forecast --n-days <N_DAYS>
 
 Options:
-  -n, --n-days <N_DAYS>  
+  -n, --n-days <N_DAYS>  Number of days into the future to get forecast for
   -h, --help             Print help
 ```
 e.g.

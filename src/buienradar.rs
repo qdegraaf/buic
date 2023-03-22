@@ -40,7 +40,7 @@ pub async fn get_actuals(station: String) -> Result<StationMeasurement, anyhow::
 #[derive(Deserialize, Debug)]
 struct JSONResult {
     #[serde(alias = "$id")]
-    id: String,
+    _id: String,
     actual: Actual,
     forecast: Forecast,
 }
@@ -48,11 +48,11 @@ struct JSONResult {
 #[derive(Deserialize, Debug)]
 struct Actual {
     #[serde(alias = "$id")]
-    id: String,
+    _id: String,
     #[serde(alias = "actualradarurl")]
-    actual_radar_url: String,
-    sunrise: String,
-    sunset: String,
+    _actual_radar_url: String,
+    _sunrise: String,
+    _sunset: String,
     #[serde(alias = "stationmeasurements")]
     station_measurements: Vec<StationMeasurement>,
 }
@@ -71,8 +71,6 @@ pub struct StationMeasurement {
     timestamp: String,
     #[serde(alias = "weatherdescription")]
     weather_description: String,
-    #[serde(alias = "iconurl")]
-    icon_url: String,
     #[serde(alias = "graphUrl")]
     graph_url: String,
     #[serde(alias = "winddirection")]
@@ -171,7 +169,7 @@ fn write_optional_field<T: Display>(
 #[derive(Deserialize, Debug)]
 struct Forecast {
     #[serde(alias = "$id")]
-    id: String,
+    _id: String,
     #[serde(alias = "fivedayforecast")]
     five_day_forecast: Vec<DayForecast>,
 }
@@ -206,8 +204,6 @@ pub struct DayForecast {
     mm_rain_max: f32,
     #[serde(alias = "weatherdescription")]
     weather_description: String,
-    #[serde(alias = "iconurl")]
-    icon_url: String,
 }
 
 impl Display for DayForecast {

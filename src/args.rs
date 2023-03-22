@@ -36,11 +36,15 @@ pub enum BuicCommand {
 
 #[derive(Debug, Subcommand)]
 pub enum WeatherCommand {
+    /// Get actual weather data from weather stations around the Benelux
     Actuals {
+        /// Name of the weather station for which you want to get actual weather data
         #[clap(short, long, required = true)]
         station: String,
     },
+    /// Get the country wide forecast for 1-5 days into the future
     Forecast {
+        /// Number of days into the future to get forecast for
         #[clap(short, long, required = true)]
         n_days: u8,
     },
