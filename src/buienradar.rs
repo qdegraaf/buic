@@ -51,7 +51,9 @@ struct Actual {
     _id: String,
     #[serde(alias = "actualradarurl")]
     _actual_radar_url: String,
+    #[serde(alias = "sunrise")]
     _sunrise: String,
+    #[serde(alias = "sunset")]
     _sunset: String,
     #[serde(alias = "stationmeasurements")]
     station_measurements: Vec<StationMeasurement>,
